@@ -52,7 +52,7 @@ npx next dev
 Visit the app at:
 
 ```
-http://localhost:3000
+http://localhost:3000/viewer
 ```
 
 (or whatever address your terminal displays)

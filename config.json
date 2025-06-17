@@ -1,0 +1,4 @@
+{
+  "sourceBase": "https://prod.example.com",
+  "destBase": "https://user:pass@uat.example.com"
+}

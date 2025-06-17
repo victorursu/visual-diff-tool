@@ -1,0 +1,30 @@
+{
+  "name": "visual-diff-tool",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^11.3.0",
+    "next": "^15.3.3",
+    "pixelmatch": "^7.1.0",
+    "puppeteer": "^24.10.1",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "sharp": "^0.34.2",
+    "yet-another-react-lightbox": "^3.23.3"
+  },
+  "type": "module",
+  "description": "",
+  "devDependencies": {
+    "@types/react": "19.1.8",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.10",
+    "typescript": "5.8.3"
+  }
+}

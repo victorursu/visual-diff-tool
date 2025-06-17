@@ -14,8 +14,7 @@ npm install
 
 ### 2. Configure your setup
 
-- ``\
-  Define your source and destination environments. Example:
+- Define your source and destination environments. Example:
 
   ```json
   {
@@ -24,8 +23,7 @@ npm install
   }
   ```
 
-- ``\
-  List all the relative paths you want to test, one per line:
+- List all the relative paths you want to test, one per line:
 
   ```
   /
@@ -66,10 +64,3 @@ http://localhost:3000/viewer
 - `urls.txt` – List of paths to test
 - `public/results/` – Generated screenshot files
 - `pages/` – Next.js viewer
-
----
-
-## 📝 License
-
-[MIT](LICENSE)
-

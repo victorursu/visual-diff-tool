@@ -139,9 +139,14 @@ async function compareImages(beforePath, afterPath, diffPath) {
   await fs.writeFile(csvPath, csvRows.join('\n'), 'utf8');
   console.log(`📄 CSV summary written to: ${csvPath}`);
 
+  const configWithTimestamp = {
+    ...config,
+    timestamp: new Date().toISOString()
+  };
+
   const configCopyPath = path.join(outputDir, 'config.json');
-  await fs.copyFile(CONFIG_PATH, configCopyPath);
-  console.log(`🧾 Config copied to: ${configCopyPath}`);
+  await fs.writeJson(configCopyPath, configWithTimestamp, { spaces: 2 });
+  console.log(`🧾 Config with timestamp saved to: ${configCopyPath}`);
 
   console.log(`\n📁 All results saved in: ${outputDir}`);
 })();

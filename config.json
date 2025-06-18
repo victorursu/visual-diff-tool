@@ -1,5 +1,5 @@
 {
-  "sourceBase": "https://leidos.com",
-  "destBase": "https://leidos:melior%23futuri@leidosacndev.prod.acquia-sites.com",
-  "maxHeight": "100"
+  "sourceBase": "https://source.website.com",
+  "destBase": "https://destionation.website.com",
+  "maxHeight": "1000"
 }

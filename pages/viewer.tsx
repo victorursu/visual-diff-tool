@@ -8,7 +8,8 @@ export default function VisualDiffViewer() {
   const [folders, setFolders] = useState([]);
   const [selectedFolder, setSelectedFolder] = useState("");
   const [lightboxOpen, setLightboxOpen] = useState(false);
-  const [lightboxImage, setLightboxImage] = useState("");
+  const [lightboxSlides, setLightboxSlides] = useState([]);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     async function loadFolders() {
@@ -34,16 +35,14 @@ export default function VisualDiffViewer() {
         return;
       }
 
-      setFiles(fileList);
-
       const grouped = {};
       for (const file of fileList) {
         const match = file.toLowerCase().match(/^(.+?)-(desktop|mobile)-(before|after|diff)\.png$/);
         if (match) {
           const [_, base, view, type] = match;
-          const key = `${base}-${view}`;
-          if (!grouped[key]) grouped[key] = {};
-          grouped[key][type] = `/results/${selectedFolder}/${file}`;
+          if (!grouped[base]) grouped[base] = {};
+          if (!grouped[base][view]) grouped[base][view] = {};
+          grouped[base][view][type] = `/results/${selectedFolder}/${file}`;
         } else {
           console.warn("Filename not matched:", file);
         }
@@ -74,26 +73,41 @@ export default function VisualDiffViewer() {
         <p>No matched image sets found. Check filenames or folder path.</p>
       ) : (
         <div className="result-grid">
-          {Object.entries(groups).map(([key, files]) => (
-            <div key={key} className="group">
-              <h2>{key}</h2>
-              <div className="card-row">
-                {['before', 'after', 'diff'].map((type) => (
-                  <div key={type} className="card">
-                    <div className="card-header">{type}</div>
-                    {files[type] && (
-                      <div className="card-image">
-                        <img
-                          src={files[type]}
-                          alt={`${type} preview`}
-                          onClick={() => {
-                            setLightboxImage(files[type]);
-                            setLightboxOpen(true);
-                          }}
-                        />
+          {Object.entries(groups).map(([page, views]) => (
+            <div key={page} className="page-group">
+              <h2>{page}</h2>
+              <div className="view-sections">
+                {['desktop', 'mobile'].map((view) => (
+                  views[view] && (
+                    <div key={view} className="view-block">
+                      <h3>{view}</h3>
+                      <div className="card-row">
+                        {['before', 'after', 'diff'].map((type) => (
+                          <div key={type} className="card">
+                            <div className="card-header">{type}</div>
+                            {views[view][type] && (
+                              <div className="card-image">
+                                <img
+                                  src={views[view][type]}
+                                  alt={`${type} preview`}
+                                  onClick={() => {
+                                    const orderedTypes = ['before', 'after', 'diff'];
+                                    const slides = orderedTypes
+                                    .filter(t => views[view][t])
+                                    .map(t => ({ src: views[view][t] }));
+                                    const index = orderedTypes.filter(t => views[view][t]).indexOf(type);
+                                    setLightboxSlides(slides);
+                                    setLightboxIndex(index);
+                                    setLightboxOpen(true);
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
-                    )}
-                  </div>
+                    </div>
+                  )
                 ))}
               </div>
             </div>
@@ -105,7 +119,10 @@ export default function VisualDiffViewer() {
         <Lightbox
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
-          slides={[{ src: lightboxImage }]}
+          slides={lightboxSlides}
+          index={lightboxIndex}
+          carousel={{ finite: false }}
+          on={{ view: ({ index }) => setLightboxIndex(index) }}
         />
       )}
 
@@ -135,12 +152,36 @@ export default function VisualDiffViewer() {
         .result-grid {
           display: flex;
           flex-direction: column;
-          gap: 32px;
+          gap: 48px;
         }
 
-        .group h2 {
+        .page-group {
+          border: 1px solid #ddd;
+          padding: 16px;
+          border-radius: 8px;
+          background: #f9f9f9;
+        }
+
+        .page-group h2 {
           font-size: 20px;
-          margin-bottom: 12px;
+          margin-bottom: 16px;
+        }
+
+        .view-sections {
+          display: flex;
+          gap: 32px;
+          flex-wrap: wrap;
+        }
+
+        .view-block {
+          flex: 1;
+        }
+
+        .view-block h3 {
+          font-size: 16px;
+          font-weight: 600;
+          margin-bottom: 8px;
+          text-transform: capitalize;
         }
 
         .card-row {
@@ -186,3 +227,4 @@ export default function VisualDiffViewer() {
     </div>
   );
 }
+

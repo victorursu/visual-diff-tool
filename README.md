@@ -19,7 +19,8 @@ npm install
   ```json
   {
     "source": "https://source-site.com",
-    "destination": "https://destination-site.com"
+    "destination": "https://destination-site.com",
+    "maxHeight": "1000"
   }
   ```
 

@@ -1,4 +1,5 @@
 {
-  "sourceBase": "https://prod.example.com",
-  "destBase": "https://user:pass@uat.example.com"
+  "sourceBase": "https://leidos.com",
+  "destBase": "https://leidos:melior%23futuri@leidosacndev.prod.acquia-sites.com",
+  "maxHeight": "100"
 }

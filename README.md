@@ -18,8 +18,8 @@ npm install
 
   ```json
   {
-    "source": "https://source-site.com",
-    "destination": "https://destination-site.com",
+    "sourceBase": "https://source-site.com",
+    "destBase": "https://destination-site.com",
     "maxHeight": "1000"
   }
   ```

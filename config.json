@@ -1,5 +1,7 @@
 {
   "sourceBase": "https://source.website.com",
   "destBase": "https://destionation.website.com",
+  "sourceBase": "https://source.website.com",
+  "destBase": "https://destionation.website.com",
   "maxHeight": "1000"
 }

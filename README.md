@@ -68,6 +68,8 @@ Make sure the `s3` block is properly configured:
 }
 ```
 
+`"removeFolderAfterSync": true` means that after the S3 sync the local /public/results folder that stores the screenshots will be removed.
+
 #### 🛡️ S3 Bucket Configuration
 
 To allow proper access to your files, configure the following **CORS policy** for your S3 bucket:
@@ -122,7 +124,7 @@ npx next dev
 Visit the app at:
 
 ```
-http://localhost:3000/viewer
+http://localhost:3000
 ```
 
 (or whatever address your terminal displays)

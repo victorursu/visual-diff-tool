@@ -20,7 +20,8 @@ npm install
   {
     "sourceBase": "https://source-site.com",
     "destBase": "https://destination-site.com",
-    "maxHeight": "1000"
+    "maxHeight": "1000",
+    "delaySeconds": 1
   }
   ```
 

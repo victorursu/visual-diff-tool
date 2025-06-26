@@ -16,7 +16,7 @@ function sanitizeFilename(input) {
   return input.replace(/[\/\\?%*:|"<>]/g, '_').replace(/^_+/, '');
 }
 
-async function captureScreenshot(url, outPath, viewport, maxHeight) {
+async function captureScreenshot(url, outPath, viewport, maxHeight, delayMs = 0) {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
 
@@ -25,8 +25,14 @@ async function captureScreenshot(url, outPath, viewport, maxHeight) {
     height: maxHeight || viewport.height,
   };
 
+
   await page.setViewport(finalViewport);
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
+
+  if (delayMs > 0) {
+    await page.waitForTimeout(delayMs);
+  }
+
   await page.screenshot({ path: outPath, fullPage: !maxHeight });
   await browser.close();
 }
@@ -51,6 +57,7 @@ async function compareImages(beforePath, afterPath, diffPath) {
 (async () => {
   const config = JSON.parse(await fs.readFile(CONFIG_PATH, 'utf-8'));
   const maxHeight = config.maxHeight ? parseInt(config.maxHeight, 10) : undefined;
+  const delayMs = (config.delaySeconds || 0) * 1000;
 
   const urlPaths = (await fs.readFile(URL_LIST_PATH, 'utf-8'))
     .split('\n')
@@ -86,8 +93,9 @@ async function compareImages(beforePath, afterPath, diffPath) {
       if (maxHeight) console.log(` 📏 Max Height: ${maxHeight}px`);
 
       try {
-        await captureScreenshot(sourceUrl, beforePath, viewport, maxHeight);
-        await captureScreenshot(destUrl, afterPath, viewport, maxHeight);
+        await captureScreenshot(sourceUrl, beforePath, viewport, maxHeight, delayMs);
+        await captureScreenshot(destUrl, afterPath, viewport, maxHeight, delayMs);
+
         const diff = await compareImages(beforePath, afterPath, diffPath);
         console.log(` ✅ [${type}] Diff pixels: ${diff}`);
 

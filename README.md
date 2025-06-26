@@ -21,12 +21,7 @@ npm install
     "sourceBase": "https://source-site.com",
     "destBase": "https://destination-site.com",
     "maxHeight": "1000",
-    "delaySeconds": 2,
-    "s3": {
-      "enabled": true,
-      "removeFolderAfterSync": true,
-      "bucket": "visual-diff-tool"
-    }
+    "delaySeconds": 2
   }
   ```
 
@@ -41,7 +36,7 @@ npm install
 
 ### 2.1 Amazon S3 Support
 
-To enable Amazon S3 support for remote screenshot storage and retrieval, update both `config.json` and `.env.local` with the following values:
+To enable Amazon S3 support for remote screenshot storage and retrieval, update `.env.local` with the following values:
 
 #### 🔧 `.env.local`
 
@@ -49,26 +44,19 @@ To enable Amazon S3 support for remote screenshot storage and retrieval, update 
 AWS_REGION=us-west-2
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
-AWS_S3_ENABLE=true
+AWS_S3_BUCKET=visual-diff-tool
 
 NEXT_PUBLIC_S3_ENABLED=true
+NEXT_PUBLIC_REMOVE_FOLDER_AFTER_SYNC=false
 NEXT_PUBLIC_S3_BUCKET=visual-diff-tool
 NEXT_PUBLIC_S3_REGION=us-west-2
 ```
 
 #### 🔧 `config.json`
 
-Make sure the `s3` block is properly configured:
-
-```json
-"s3": {
-  "enabled": true,
-  "removeFolderAfterSync": true,
-  "bucket": "visual-diff-tool"
-}
-```
-
-`"removeFolderAfterSync": true` means that after the S3 sync the local /public/results folder that stores the screenshots will be removed.
+Make sure the `s3` block is properly configured in .env.local
+`NEXT_PUBLIC_REMOVE_FOLDER_AFTER_SYNC=true` means the public/results folder where the screenshots are kept localy, is being deleted after the S3 sync.
+`NEXT_PUBLIC_S3_ENABLED=true` mean images will be synced up to a valid S3 bucket.
 
 #### 🛡️ S3 Bucket Configuration
 

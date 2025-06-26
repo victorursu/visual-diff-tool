@@ -192,7 +192,7 @@ async function compareImages(beforePath, afterPath, diffPath, config) {
 
   console.log(`\n📁 All results saved in: ${outputDir}`);
 
-  if (config.s3?.enabled && config.s3.removeFolderAfterSync) {
+  if (process.env.NEXT_PUBLIC_S3_ENABLED && process.env.NEXT_PUBLIC_REMOVE_FOLDER_AFTER_SYNC) {
     try {
       await fs.remove(outputDir);
       console.log(`🗑️ Removed local folder: ${outputDir}`);

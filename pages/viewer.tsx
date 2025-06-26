@@ -13,7 +13,12 @@ export default function VisualDiffViewer() {
 
   useEffect(() => {
     async function loadFolders() {
-      const res = await fetch("/api/files");
+      const res = await fetch(
+        process.env.NEXT_PUBLIC_S3_ENABLED === 'true'
+          ? "/api/s3files"
+          : "/api/files"
+      );
+
       const data = await res.json();
       setFolders(data.folders || []);
       if (data.folders?.length) {
@@ -26,8 +31,16 @@ export default function VisualDiffViewer() {
   useEffect(() => {
     if (!selectedFolder) return;
     async function loadFiles() {
-      const folderPath = `results/${selectedFolder}`;
-      const response = await fetch(`/api/files?folder=${folderPath}`);
+      const folderPath = process.env.NEXT_PUBLIC_S3_ENABLED === 'true'
+        ? `${selectedFolder}`
+        : `results/${selectedFolder}`;
+
+      const endpoint = process.env.NEXT_PUBLIC_S3_ENABLED === 'true'
+        ? `/api/s3files?folder=${folderPath}`
+        : `/api/files?folder=${folderPath}`;
+
+      const response = await fetch(endpoint);
+
       const fileList = await response.json();
 
       if (!Array.isArray(fileList)) {
@@ -42,7 +55,11 @@ export default function VisualDiffViewer() {
           const [_, base, view, type] = match;
           if (!grouped[base]) grouped[base] = {};
           if (!grouped[base][view]) grouped[base][view] = {};
-          grouped[base][view][type] = `/results/${selectedFolder}/${file}`;
+          if (process.env.NEXT_PUBLIC_S3_ENABLED === 'true') {
+            grouped[base][view][type] = `https://${process.env.NEXT_PUBLIC_S3_BUCKET}.s3.${process.env.NEXT_PUBLIC_S3_REGION}.amazonaws.com/${selectedFolder}/${file}`;
+          } else {
+            grouped[base][view][type] = `/results/${selectedFolder}/${file}`;
+          }
         } else {
           console.warn("Filename not matched:", file);
         }

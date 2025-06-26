@@ -21,7 +21,12 @@ npm install
     "sourceBase": "https://source-site.com",
     "destBase": "https://destination-site.com",
     "maxHeight": "1000",
-    "delaySeconds": 1
+    "delaySeconds": 2,
+    "s3": {
+      "enabled": true,
+      "removeFolderAfterSync": true,
+      "bucket": "visual-diff-tool"
+    }
   }
   ```
 
@@ -31,6 +36,7 @@ npm install
   /
   /about
   /contact
+  /company
   ```
 
 ### 3. Generate screenshots

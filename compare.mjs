@@ -3,6 +3,10 @@ import pixelmatch from 'pixelmatch';
 import fs from 'fs-extra';
 import { PNG } from 'pngjs';
 import path from 'path';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import dotenv from 'dotenv';
+dotenv.config({ path: '.env.local' });
+
 
 const CONFIG_PATH = './config.json';
 const URL_LIST_PATH = './urls.txt';
@@ -14,6 +18,28 @@ const VIEWPORTS = {
 
 function sanitizeFilename(input) {
   return input.replace(/[\/\\?%*:|"<>]/g, '_').replace(/^_+/, '');
+}
+
+async function uploadToS3(localPath, s3Path, s3Config) {
+  const s3 = new S3Client({
+    region: s3Config.region,
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  });
+
+  const fileContent = await fs.readFile(localPath);
+
+  const command = new PutObjectCommand({
+    Bucket: s3Config.bucket,
+    Key: s3Path,
+    Body: fileContent,
+    ContentType: 'image/png'
+  });
+
+  await s3.send(command);
+  console.log(`☁️  Uploaded to S3: ${s3Path}`);
 }
 
 async function captureScreenshot(url, outPath, viewport, maxHeight, delayMs = 0) {
@@ -30,14 +56,14 @@ async function captureScreenshot(url, outPath, viewport, maxHeight, delayMs = 0)
   await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
 
   if (delayMs > 0) {
-    await page.waitForTimeout(delayMs);
+    await new Promise(resolve => setTimeout(resolve, delayMs));
   }
 
   await page.screenshot({ path: outPath, fullPage: !maxHeight });
   await browser.close();
 }
 
-async function compareImages(beforePath, afterPath, diffPath) {
+async function compareImages(beforePath, afterPath, diffPath, config) {
   const img1 = PNG.sync.read(fs.readFileSync(beforePath));
   const img2 = PNG.sync.read(fs.readFileSync(afterPath));
 
@@ -51,6 +77,7 @@ async function compareImages(beforePath, afterPath, diffPath) {
   );
 
   fs.writeFileSync(diffPath, PNG.sync.write(diff));
+
   return numDiffPixels;
 }
 
@@ -98,6 +125,13 @@ async function compareImages(beforePath, afterPath, diffPath) {
 
         const diff = await compareImages(beforePath, afterPath, diffPath);
         console.log(` ✅ [${type}] Diff pixels: ${diff}`);
+
+        if (config.s3?.enabled) {
+          const baseKey = `${formattedDate}-${timestamp}/${baseName}-${type}`;
+          await uploadToS3(beforePath, `${baseKey}-before.png`, config.s3);
+          await uploadToS3(afterPath, `${baseKey}-after.png`, config.s3);
+          await uploadToS3(diffPath, `${baseKey}-diff.png`, config.s3);
+        }
 
         summaryData.push({
           url: urlPath,
@@ -157,4 +191,14 @@ async function compareImages(beforePath, afterPath, diffPath) {
   console.log(`🧾 Config with timestamp saved to: ${configCopyPath}`);
 
   console.log(`\n📁 All results saved in: ${outputDir}`);
+
+  if (config.s3?.enabled && config.s3.removeFolderAfterSync) {
+    try {
+      await fs.remove(outputDir);
+      console.log(`🗑️ Removed local folder: ${outputDir}`);
+    } catch (err) {
+      console.error(`⚠️ Failed to remove folder: ${outputDir}`, err.message);
+    }
+  }
+
 })();

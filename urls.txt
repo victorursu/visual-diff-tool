@@ -1,3 +1,2 @@
 /
-/company
-/contact
+/insights

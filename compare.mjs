@@ -20,9 +20,9 @@ function sanitizeFilename(input) {
   return input.replace(/[\/\\?%*:|"<>]/g, '_').replace(/^_+/, '');
 }
 
-async function uploadToS3(localPath, s3Path, s3Config) {
+async function uploadToS3(localPath, s3Path) {
   const s3 = new S3Client({
-    region: s3Config.region,
+    region: process.env.AWS_REGION,
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
@@ -32,7 +32,7 @@ async function uploadToS3(localPath, s3Path, s3Config) {
   const fileContent = await fs.readFile(localPath);
 
   const command = new PutObjectCommand({
-    Bucket: s3Config.bucket,
+    Bucket: process.env.AWS_S3_BUCKET,
     Key: s3Path,
     Body: fileContent,
     ContentType: 'image/png'
@@ -126,11 +126,12 @@ async function compareImages(beforePath, afterPath, diffPath, config) {
         const diff = await compareImages(beforePath, afterPath, diffPath);
         console.log(` ✅ [${type}] Diff pixels: ${diff}`);
 
-        if (config.s3?.enabled) {
+
+        if (process.env.NEXT_PUBLIC_S3_ENABLED === 'true') {
           const baseKey = `${formattedDate}-${timestamp}/${baseName}-${type}`;
-          await uploadToS3(beforePath, `${baseKey}-before.png`, config.s3);
-          await uploadToS3(afterPath, `${baseKey}-after.png`, config.s3);
-          await uploadToS3(diffPath, `${baseKey}-diff.png`, config.s3);
+          await uploadToS3(beforePath, `${baseKey}-before.png`);
+          await uploadToS3(afterPath, `${baseKey}-after.png`);
+          await uploadToS3(diffPath, `${baseKey}-diff.png`);
         }
 
         summaryData.push({
@@ -192,7 +193,10 @@ async function compareImages(beforePath, afterPath, diffPath, config) {
 
   console.log(`\n📁 All results saved in: ${outputDir}`);
 
-  if (process.env.NEXT_PUBLIC_S3_ENABLED && process.env.NEXT_PUBLIC_REMOVE_FOLDER_AFTER_SYNC) {
+  if (
+    process.env.NEXT_PUBLIC_S3_ENABLED === 'true' &&
+    process.env.NEXT_PUBLIC_REMOVE_FOLDER_AFTER_SYNC === 'true'
+  ) {
     try {
       await fs.remove(outputDir);
       console.log(`🗑️ Removed local folder: ${outputDir}`);

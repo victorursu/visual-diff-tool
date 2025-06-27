@@ -66,7 +66,7 @@ To allow proper access to your files, configure the following **CORS policy** fo
 [
   {
     "AllowedHeaders": ["*"],
-    "AllowedMethods": ["GET", "PUT", "POST", "DELETE", "HEAD"],
+    "AllowedMethods": ["GET", "HEAD"],
     "AllowedOrigins": ["http://localhost:3000"],
     "ExposeHeaders": ["ETag"],
     "MaxAgeSeconds": 300

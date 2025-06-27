@@ -14,7 +14,7 @@ npm install
 
 ### 2. Configure your setup
 
-* Define your source and destination environments. Example:
+* Define your source and destination environments in `config.json`. Example:
 
   ```json
   {
